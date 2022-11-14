@@ -61,3 +61,7 @@ class AudioDataRepository(AbstarctAudioDataRepository):
             return self.serializer(get).data
         except self.model.DoesNotExist:
             raise NotFoundError
+        
+    def find_by_audio_data_by_title_with_page(self, project_title:str, offset:int) -> list(dict) :
+        
+        pass
