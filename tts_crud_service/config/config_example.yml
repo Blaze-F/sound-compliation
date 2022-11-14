@@ -1,0 +1,16 @@
+databases:
+  host: "localhost"
+  port: 3306
+  database: "rainy_day"
+  username: "db user name"
+  password: "db pw"
+  timezone: "+09:00"
+
+secrets:
+  django: "django secret"
+
+token:
+  scret: "jwt secret"
+  expire_sec: 3600
+
+seoul_open_api_key: ""
