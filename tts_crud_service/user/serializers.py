@@ -40,7 +40,6 @@ class UserSignUpSchema(serializers.Serializer):
     name = serializers.CharField(max_length=20, allow_null=False)
     email = serializers.CharField(max_length=100, allow_null=False)
     password = serializers.CharField(max_length=255, allow_null=False)
-    district = serializers.CharField(max_length=20, allow_null=False)
 
 
 class UserLoginSchema(serializers.Serializer):

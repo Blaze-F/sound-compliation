@@ -1,15 +1,16 @@
 from django.db import models
 
 from tts_crud_service.models import BaseModel
+from user.models import User
 
 
-class TtsProjects(BaseModel):
-    project_title = models.CharField(null=False)
+class TtsProject(BaseModel):
+    project_title = models.CharField(null=False, unique=True, max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column="user_id")
 
 
 class AudioData(BaseModel):
-    text = models.CharField(null=False)
-    speed = models.FloatField(null=False, default=1)
-    tts_project = models.ForeignKey(TtsProjects, on_delete=models.CASCADE, db_column="project_id")
-    is_file_exisist = models.BooleanField(null=False,default=False)
-    saved_path = models.CharField(max_length=255, null=True)
+    text = models.CharField(null=False, max_length=255)
+    slow = models.FloatField(null=False, default=False)
+    tts_project = models.ForeignKey(TtsProject, on_delete=models.CASCADE, db_column="project_id")
+    name = models.CharField(max_length=255, null=False)

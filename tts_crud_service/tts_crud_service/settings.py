@@ -144,3 +144,4 @@ SWAGGER_SETTINGS = {
         "Bearer": {"type": "JWT Token", "name": "Authorization", "in": "header"},
     },
 }
+REST_FRAMEWORK = {"DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination"}
