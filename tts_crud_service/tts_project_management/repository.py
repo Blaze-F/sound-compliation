@@ -1,10 +1,12 @@
+import json
 from typing import List
 from numpy import ceil
 from config.config import Config
 from tts_project_management.models import AudioData, TtsProject
 from tts_project_management.serializer import AudioDataSerializer, TtsProjectSerializer
 from exceptions import NotFoundError
-from tts_project_management.text_to_speach import GoogleTextToSpeach
+from tts_project_management.utils.text_to_speach import GoogleTextToSpeach
+from user.models import User
 
 
 class AbstarctProjectRepository:
@@ -12,14 +14,17 @@ class AbstarctProjectRepository:
         self.model = TtsProject
         self.serializer = TtsProjectSerializer
         self.audio_data_serializer = AudioDataSerializer
-        AbstarctAudioDataRepository()
         self.audio_data_repository = AudioDataRepository()
+        self.user = User
 
 
 class TtsProjectRepository(AbstarctProjectRepository):
-    def create(self, project_title: str) -> dict:
-        obj = self.model.objects.create(
-            project_title=project_title,
+    # TODO 업데이트, create 나누기
+    def create(self, project_title: str, user_id: int) -> dict:
+        user_ins = self.user.objects.get(id=user_id)
+        default = {"user": user_ins}
+        obj, is_created = self.model.objects.update_or_create(
+            project_title=project_title, defaults=default
         )
         try:
             return self.serializer(obj).data
@@ -64,6 +69,7 @@ class AbstarctAudioDataRepository:
         self.serializer = AudioDataSerializer
         self.tts_project_repo = TtsProjectRepository
         self.proj_model = TtsProject
+        self.tts = GoogleTextToSpeach()
 
 
 class AudioDataRepository(AbstarctAudioDataRepository):
@@ -84,32 +90,37 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         )
         return self.serializer(created).data
 
-    def create_bulk(self, data: list, project_title: int) -> list():
+    def create_bulk(self, data: list, project_title: str, slow=False) -> dict():
         bulk_list = []
         self.serializer(data=data)
-        self.serializer.is_valid(raise_exception=True)
+        # self.serializer.is_valid(raise_exception=True)
         seq = 0
         tts_proj_ins = self.proj_model.objects.get(project_title=project_title)
-        for dict in data:
+        for sentense in data:
 
-            file = GoogleTextToSpeach.create_tts(text=data["text"], slow=data["slow"], sequense=seq)
+            file = self.tts.create_tts(
+                project_title=project_title, text=sentense, slow=slow, sequense=seq
+            )
             created = self.model.objects.create(
-                text=data["text"],
-                slow=data["slow"],
+                text=sentense,
+                slow=slow,
                 name=file["name"],
                 tts_project=tts_proj_ins,
-                seq_in_proj=seq,
+                sequense=seq,
+                path=file["saved_path"],
             )
-            bulk_list.append(created)
+            temp = self.serializer(created).data
+            bulk_list.append(temp)
+            seq = seq + 1
 
-        res = self.serializer(bulk_list, many=True).save()
+        res = dict(zip(range(1, len(bulk_list) + 1), bulk_list))
 
-        return res.data
+        return res
 
     def update_audio_data(self, project_title: str, data: dict, sequense: int) -> dict:
         """project title, 내부 순서 sequence 를 인자로 받아서 프로젝트 내부 sequence번째 오디오 데이터를 업데이트 합니다."""
         file = GoogleTextToSpeach.create_tts(
-            text=data["text"], slow=data["slow"], sequense=sequense
+            project_title=project_title, text=data["text"], slow=data["slow"], sequense=sequense
         )
         updated = (
             self.model.objects.select_related("TtsProject")

@@ -1,3 +1,4 @@
+import json
 from config.config import config
 from tts_project_management.repository import (
     AbstarctAudioDataRepository,
@@ -24,12 +25,12 @@ class TtsProjectManagementService:
 
         return res
 
-    def create_project(self, project_title: str, project_container: list) -> list():
+    def create_project(self, project_title: str, project_container: list, user_id: int) -> list():
 
-        project = self.tts_project_repo.create(project_title=project_title)
+        project = self.tts_project_repo.create(project_title=project_title, user_id=user_id)
         res = self.audio_data_repo.create_bulk(data=project_container, project_title=project_title)
-
-        return res.append(project)
+        res["project"] = project
+        return res
 
     def update_project(self, project_title: str, sequense: int, text: str):
         pass

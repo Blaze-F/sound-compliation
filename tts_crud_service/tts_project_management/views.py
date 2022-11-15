@@ -12,8 +12,9 @@ from tts_project_management.repository import (
     TtsProjectRepository,
 )
 from rest_framework.views import APIView
-from tts_project_management.serializer import AudioDataSerializer
+from tts_project_management.serializer import AudioDataSerializer, TtsProjectCreateSchema
 from tts_project_management.service import TtsProjectManagementService
+from tts_project_management.utils.preprocess import preprocess_data
 
 # 인스턴스 생성
 tts_project_repository = TtsProjectRepository()
@@ -38,15 +39,23 @@ class ProjectView(APIView):
 
 
 @swagger_auto_schema(responses={200: dict}, request_body=json)
-@execption_hanlder()
+# @execption_hanlder()
 @must_be_user()
 @parser_classes([JSONParser])
-def project_create(request, data):
+def project_create(request):
     user_id = request.user["id"]
+    data = request.data
+    input = TtsProjectCreateSchema(data=data)
+    input.is_valid(raise_exception=True)
     project_title = data["project_title"]
-    created = service.create_project(project_title=project_title)
+    # 전처리기 호출
+    sentenses = preprocess_data(input=data["sentenses"])
 
-    return JsonResponse(created, status=201)
+    created = service.create_project(
+        user_id=user_id, project_title=project_title, project_container=sentenses
+    )
+
+    return JsonResponse(created, status=201, safe=False)
 
 
 @swagger_auto_schema(responses={200: AudioDataSerializer})
