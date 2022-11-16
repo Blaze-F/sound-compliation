@@ -14,6 +14,7 @@ class Config:
     secrets: dict = yaml_settings["secrets"]
     token: dict = yaml_settings["token"]
     pagenation: dict = yaml_settings["pagenation"]
+    audio_output: dict = yaml_settings["audio_output"]
 
 
 config = Config()

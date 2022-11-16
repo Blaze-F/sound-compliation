@@ -1,7 +1,7 @@
 databases:
   host: "localhost"
   port: 3306
-  database: "rainy_day"
+  database: "tts_service"
   username: "db user name"
   password: "db pw"
   timezone: "+09:00"
@@ -10,7 +10,12 @@ secrets:
   django: "django secret"
 
 token:
-  scret: "jwt secret"
+  secret: "jwt secret"
   expire_sec: 3600
 
-seoul_open_api_key: ""
+pagenation:
+  default_page_size: 10
+
+audio_output:
+  path: "audio_outputs/"
+  make_folder: True
