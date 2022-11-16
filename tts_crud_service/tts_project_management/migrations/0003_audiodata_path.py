@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("tts_project_management", "0002_audiodata_sequense"),
+        ("tts_project_management", "0002_audiodata_sequence"),
     ]
 
     operations = [

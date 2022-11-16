@@ -8,9 +8,9 @@ class GoogleTextToSpeach:
     def __init__(self) -> None:
         pass
 
-    def create_tts(self, text: str, sequense: int, slow: bool, project_title: str) -> dict:
+    def create_tts(self, text: str, sequence: int, slow: bool, project_title: str) -> dict:
         """TTS mp3 파일을 생성해서 생성정보를 리턴합니다.
-        파일 명명규칙 : GTTS_{project_title}_{str(sequense).zfill(3)}_{text}.mp3
+        파일 명명규칙 : GTTS_{project_title}_{str(sequence).zfill(3)}_{text}.mp3
         경로 및 폴더 생성 관련 설정 config 파일에 있습니다.
         텍스트에 물음표가 포함된경우 내용은 정상반영되지만 파일명에는 나타나지 않습니다."""
         tts = gTTS(text=text, slow=slow, lang="ko")
@@ -25,13 +25,13 @@ class GoogleTextToSpeach:
             project_folder = f"{project_title}/"
 
         tts.save(
-            f"{save_path}{project_folder}GTTS_{project_title}_{str(sequense).zfill(3)}_{text}.mp3"
+            f"{save_path}{project_folder}GTTS_{project_title}_{str(sequence).zfill(3)}_{text}.mp3"
         )
 
         data = {
-            "sequense": sequense,
-            "name": f"GTTS_{project_title}_{text}_{str(sequense).zfill(3)}",
-            "saved_path": f"{save_path}{project_folder}GTTS_{project_title}_{str(sequense).zfill(3)}_{text}.mp3",
+            "sequence": sequence,
+            "name": f"GTTS_{project_title}_{str(sequence).zfill(3)}_{text}",
+            "saved_path": f"{save_path}{project_folder}GTTS_{project_title}_{str(sequence).zfill(3)}_{text}.mp3",
         }
 
         return data

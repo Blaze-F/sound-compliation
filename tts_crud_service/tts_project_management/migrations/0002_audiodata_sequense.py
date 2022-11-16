@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="audiodata",
-            name="sequense",
+            name="sequence",
             field=models.IntegerField(null=True),
         ),
     ]

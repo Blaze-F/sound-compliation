@@ -24,14 +24,16 @@ class TtsProjectManagementService:
 
         return res
 
-    def create_project(self, project_title: str, project_container: list, user_id: int) -> list():
+    def create_project(self, project_title: str, project_container: list, user_id: int) -> dict:
 
         project = self.tts_project_repo.create(project_title=project_title, user_id=user_id)
-        res = self.audio_data_repo.create_bulk(data=project_container, project_title=project_title)
+        res = self.audio_data_repo.create_or_update_bulk(
+            data=project_container, project_title=project_title
+        )
         res["project"] = project
         return res
 
-    def update_project(self, project_title: str, sequense: int, text: str):
+    def update_project(self, project_title: str, sequence: int, text: str):
         pass
 
     def delete_project(self, project_title: str) -> str:

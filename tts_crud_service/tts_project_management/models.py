@@ -15,9 +15,9 @@ class TtsProject(BaseModel):
 class AudioData(BaseModel):
     tts_project = models.ForeignKey(TtsProject, on_delete=models.CASCADE, db_column="project_id")
     text = models.CharField(null=False, max_length=255)
-    slow = models.FloatField(null=False, default=False)
+    slow = models.BooleanField(null=False, default=False)
     name = models.CharField(max_length=255)
-    sequense = models.IntegerField(null=True)
+    sequence = models.IntegerField(null=True)
     path = models.CharField(max_length=255)
 
     class Meta:
