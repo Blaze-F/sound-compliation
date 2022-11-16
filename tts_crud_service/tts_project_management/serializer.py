@@ -29,6 +29,7 @@ class TtsProjectCreateSchema(serializers.Serializer):
     sentenses = serializers.CharField()
 
 
-class TtsProjectReqSchema(serializers.Serializer):
+class AudioDataInsertReqSchema(serializers.Serializer):
     project_title = serializers.CharField()
     sentenses = serializers.CharField()
+    sequence = serializers.IntegerField()

@@ -3,8 +3,6 @@ from config.config import config
 from tts_project_management.repository import (
     AbstarctAudioDataRepository,
     AbstarctProjectRepository,
-    AudioDataRepository,
-    TtsProjectRepository,
 )
 
 
@@ -34,18 +32,39 @@ class TtsProjectManagementService:
         return res
 
     def delete_project(self, project_title: str) -> str:
-
         res = self.tts_project_repo.delete(project_title=project_title)
 
+
+class AudioDataManagementService:
+    def __init__(
+        self,
+        tts_project_repo: AbstarctProjectRepository,
+        audio_data_repo: AbstarctAudioDataRepository,
+    ) -> None:
+        # TODO self 변수로 받기
+        self.tts_project_repo = tts_project_repo
+        self.audio_data_repo = audio_data_repo
+
     def insert_audio_data(self, project_title: str, data: list, sequence: int, slow=False) -> dict:
-        res = self.audio_data_repo(
-            project_title=project_title, data=data, sequence=sequence, slow=False
+        res = self.audio_data_repo.insert_audio_data(
+            project_title=project_title, data=data, sequence=sequence
+        )
+        return res
+
+    def update_audio_data(
+        self, project_title: str, sentense: str, sequence: int, slow=False
+    ) -> dict:
+        res = self.audio_data_repo.update_audio_data(
+            project_title=project_title, sentense=sentense, sequence=sequence, slow=slow
         )
         return res
 
     def delete_audio_data(
         self, project_title: str, sequence: int, delete_amount: int, user_id: int
-    ):
-        """해당 seq"""
-
-        return
+    ) -> str:
+        """해당 seq에 해당하는 audio 데이터를 삭제합니다."""
+        self.audio_data_repo.delete_audio_data_sequence(
+            project_title=project_title, sequence=sequence
+        )
+        msg = f"{project_title}_{sequence}delete completed."
+        return msg

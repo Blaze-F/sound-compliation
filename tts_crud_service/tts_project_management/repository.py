@@ -119,7 +119,7 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         seq = sequence
         self.serializer(data=data)
         # self.serializer.is_valid(raise_exception=True)
-        amount = data.count()
+        amount = len(data)
         project_id = tts_proj_ins.id
 
         with transaction.atomic():
@@ -151,25 +151,46 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         res = dict(zip(range(1, len(bulk_list) + 1), bulk_list))
         return res
 
-    def push_audio_data_sequence(self, project_id: int, amount: int, sequence: int) -> list(dict):
-        q1 = Q("sequence" >= sequence)
-        q2 = Q("project_id" == project_id)
-        q_query = q1.add(q2, Q.AND)
-        pushed = self.model.objects.filter(q_query).update(sequence=F("sequence") + amount)
-        return self.serializer(pushed, many=True).data
-
-    def update_audio_data(self, project_title: str, data: dict, sequence: int) -> dict:
+    def update_audio_data(
+        self, project_title: str, sentense: str, sequence: int, slow: False
+    ) -> dict:
         """project title, 내부 순서 sequence 를 인자로 받아서 프로젝트 내부 sequence번째 오디오 데이터를 업데이트 합니다."""
-        file = GoogleTextToSpeach.create_tts(
-            project_title=project_title, text=data["text"], slow=data["slow"], sequence=sequence
+        tts_proj_ins = self.proj_model.objects.get(project_title=project_title)
+
+        file = self.tts.create_tts(
+            project_title=project_title, text=sentense, slow=slow, sequence=sequence
         )
-        updated = (
-            self.model.objects.select_related("TtsProject")
-            .filter(project_title=project_title, sequence=sequence)
-            .update(text=data["text"], speed=data["speed"], name=file["name"], seq_in_proj=sequence)
+        default = {
+            "text": sentense,
+            "slow": slow,
+            "name": file["name"],
+            "tts_project": tts_proj_ins,
+            "path": file["saved_path"],
+        }
+        updated, is_created = self.model.objects.update_or_create(
+            tts_project=tts_proj_ins, sequence=sequence, defaults=default
         )
         try:
             return self.serializer(updated).data
+        except self.model.DoesNotExist:
+            raise NotFoundError
+
+    def push_audio_data_sequence(self, project_id: int, amount: int, sequence: int) -> list():
+        # TODO Bulk_update와 성능비교
+        q1 = Q(sequence__gte=sequence)
+        q2 = Q(tts_project_id__exact=project_id)
+        q_query = q1.add(q2, Q.AND)
+        self.model.objects.filter(q_query).update(sequence=F("sequence") + amount)
+        sequence += amount
+        q1 = Q(sequence__gte=sequence)
+        q_query = q1.add(q2, Q.AND)
+        pushed = self.model.objects.filter(q_query)
+        return self.serializer(pushed, many=True).data
+
+    def delete_audio_data_sequence(self, project_title: str, sequence: int) -> None:
+        tts_proj_ins = self.proj_model.objects.get(project_title=project_title)
+        try:
+            self.model.objects.get(tts_proj_ins=tts_proj_ins, sequence=sequence).delete
         except self.model.DoesNotExist:
             raise NotFoundError
 

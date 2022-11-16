@@ -12,11 +12,10 @@ class GoogleTextToSpeach:
         """TTS mp3 파일을 생성해서 생성정보를 리턴합니다.
         파일 명명규칙 : GTTS_{project_title}_{str(sequence).zfill(3)}_{text}.mp3
         경로 및 폴더 생성 관련 설정 config 파일에 있습니다.
-        텍스트에 물음표가 포함된경우 내용은 정상반영되지만 파일명에는 나타나지 않습니다."""
+        텍스트에 물음표가 포함된경우 파일 이름 에러로 인해 "？"특수문자 U+ff1f 물음표로 대치시켜 저장합니다."""
         tts = gTTS(text=text, slow=slow, lang="ko")
         project_folder = ""
-        # 이름에 ? 들어가면 에러가 발생
-        text = text.replace("?", "")
+        text = text.replace("?", "？")
         audio_config = config.audio_output
         make_folder = audio_config["make_folder"]
         save_path = audio_config["path"]
@@ -57,17 +56,15 @@ class GoogleTextToSpeach:
         make_folder = audio_config["make_folder"]
 
         if make_folder == True:
-            project_path = f"{save_path}{project_title}"
+            project_path = f"{save_path}{project_title}/"
         else:
             project_path = f"{save_path}"
-
         for data in past_name_list:
-            splited = data["name"].split("_")
+            splited = str(data["name"]).split("_")
             past_seq = int(splited[2])
             new_seq = past_seq + addnum
             new_name_seq = str(new_seq).zfill(3)
             os.rename(
-                project_path
-                + data["name"]
-                + f"{project_path}GTTS_{splited[1]}_{new_name_seq}_{splited[3]}.mp3"
+                project_path + data["name"] + ".mp3",
+                f"{project_path}GTTS_{splited[1]}_{new_name_seq}_{splited[3]}.mp3",
             )

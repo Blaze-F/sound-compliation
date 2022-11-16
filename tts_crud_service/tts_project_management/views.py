@@ -12,14 +12,21 @@ from tts_project_management.repository import (
     TtsProjectRepository,
 )
 from rest_framework.views import APIView
-from tts_project_management.serializer import AudioDataSerializer, TtsProjectCreateSchema
-from tts_project_management.service import TtsProjectManagementService
+from tts_project_management.serializer import (
+    AudioDataInsertReqSchema,
+    AudioDataSerializer,
+    TtsProjectCreateSchema,
+)
+from tts_project_management.service import AudioDataManagementService, TtsProjectManagementService
 from tts_project_management.utils.preprocess import preprocess_data
 
 # 인스턴스 생성
 tts_project_repository = TtsProjectRepository()
 audio_data_repository = AudioDataRepository()
 service = TtsProjectManagementService(
+    tts_project_repo=tts_project_repository, audio_data_repo=audio_data_repository
+)
+audio_service = AudioDataManagementService(
     tts_project_repo=tts_project_repository, audio_data_repo=audio_data_repository
 )
 
@@ -34,8 +41,8 @@ class ProjectView(APIView):
     def delete(self, request, *args, **kwargs):
         return project_delete(request, *args, **kwargs)
 
-    def put(self, request, *args, **kwargs):
-        return project_update(request, *args, **kwargs)
+    # def put(self, request, *args, **kwargs):
+    #     return project_update(request, *args, **kwargs)
 
 
 @swagger_auto_schema(responses={200: dict}, request_body=json)
@@ -62,20 +69,9 @@ def project_create(request):
 @execption_hanlder()
 @must_be_user()
 @parser_classes([JSONParser])
-def project_update(request):
-    user_id = request.user["id"]
-    updated = service.update_project()
-
-    return JsonResponse(updated, status=200)
-
-
-@swagger_auto_schema(responses={200: AudioDataSerializer})
-@execption_hanlder()
-@must_be_user()
-@parser_classes([JSONParser])
 def find_project_page(request):
     user_id = request.user["id"]
-    project_title = request.GET["title"]
+    project_title = request.GET["project_title"]
     pagenum = request.get["page"]
     data_list = service.get_page(projct_title=project_title, page=pagenum)
 
@@ -83,7 +79,6 @@ def find_project_page(request):
 
 
 @swagger_auto_schema(
-    manual_parameters=[Parameter("account_id", IN_QUERY, "생성 아이디 입니다.", type="int")],
     responses={200: dict},
 )
 @execption_hanlder()
@@ -91,57 +86,69 @@ def find_project_page(request):
 @parser_classes([JSONParser])
 def project_delete(request):
     user_id = request.user["id"]
-    project_title = request.GET["title"]
+    project_title = request.GET["project_title"]
     res = service.delete_project(project_title=project_title)
     return JsonResponse(res, status=200)
 
 
 @swagger_auto_schema(
-    method="post",
-    manual_parameters=[
-        Parameter("account_id", IN_QUERY, "생성 아이디 입니다. 쿼리스트링입니다.", type="int"),
-    ],
-    responses={200: AudioDataSerializer},
+    method="post", responses={200: AudioDataSerializer}, request_body=AudioDataInsertReqSchema
 )
 @api_view(["POST"])
-@execption_hanlder()
+# @execption_hanlder()
 @must_be_user()
 @parser_classes([JSONParser])
 def insert_data(request):
     user_id = request.user["id"]
     data = request.data
-    input = TtsProjectCreateSchema(data=data)
+    input = AudioDataInsertReqSchema(data=data)
     input.is_valid(raise_exception=True)
-    res = service.insert_audio_data(data=data)
+    # 전처리기 호출
+    sentenses = preprocess_data(input=data["sentenses"])
+    project_title = data["project_title"]
+    sequence = data["sequence"]
+
+    res = audio_service.insert_audio_data(
+        data=sentenses, sequence=sequence, project_title=project_title
+    )
     return JsonResponse(res, status=200)
 
 
-# @swagger_auto_schema(method="get",manual_parameters=[
-#             Parameter('account_id', IN_QUERY,
-#                       '생성 아이디 입니다.',
-#                       type='int'),
-#         ], responses={200: AccountSerializer})
-# @api_view(["GET"])
-# @execption_hanlder()
-# @must_be_user()
-# @parser_classes([JSONParser])
-# def account_find_all(request):
-#     user_id = request.user["id"]
-#     res = account_book_service.find(user_id=user_id)
+@swagger_auto_schema(
+    method="put", request_body=AudioDataInsertReqSchema, responses={200: AudioDataSerializer}
+)
+@api_view(["PUT"])
+@execption_hanlder()
+@must_be_user()
+@parser_classes([JSONParser])
+def audio_data_update(request):
+    user_id = request.user["id"]
+    data = request.data
+    sentense = data["sentense"]
+    sequence = data["sequence"]
+    project_title = data["project_title"]
 
-#     return JsonResponse(res, safe=False, status=200)
+    updated = audio_service.update_audio_data(
+        sentense=sentense, sequence=sequence, project_title=project_title
+    )
 
-# @swagger_auto_schema(method="get",manual_parameters=[
-#             Parameter('account_id', IN_QUERY,
-#                       '생성 아이디 입니다. 쿼리스트링입니다.',
-#                       type='int'),
-#         ], responses={200: AccountSerializer})
-# @api_view(["GET"])
-# @execption_hanlder()
-# @must_be_user()
-# @parser_classes([JSONParser])
-# def account_recover(request):
-#     user_id = request.user["id"]
-#     account_id = request.GET["account_id"]
-#     res = account_book_service.recover(user_id=user_id, account_id=account_id)
-#     return JsonResponse(res, status=200)
+    return JsonResponse(updated, status=200)
+
+
+@swagger_auto_schema(
+    method="delete", responses={200: AudioDataSerializer}, request_body=AudioDataInsertReqSchema
+)
+@api_view(["DELETE"])
+@execption_hanlder()
+@must_be_user()
+@parser_classes([JSONParser])
+def delete_audio_data(request):
+    user_id = request.user["id"]
+    data = request.data
+    project_title = data["project_title"]
+    sequence = data["sequence"]
+
+    res = audio_service.delete_audio_data(
+        project_title=project_title, sequence=sequence, slow=False
+    )
+    return JsonResponse(res, status=200)
