@@ -1,5 +1,7 @@
 from gtts import gTTS
 
+from config.config import config
+
 
 class GoogleTextToSpeach:
     def __init__(self) -> None:
