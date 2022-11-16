@@ -113,18 +113,25 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         return res
 
     def insert_audio_data(self, project_title: str, data: list, sequence: int, slow=False) -> dict:
-        """특정 seq "이후로" 삽입합니다. 만일 뒤에 데이터가 있을경우 숫자만큼 뒤로 밀립니다. 파일명에도 동일 반영됩니다."""
+        """특정 seq "위치부터" 삽입합니다. 만일 뒤에 데이터가 있을경우 숫자만큼 뒤로 밀립니다. 파일명에도 동일 반영됩니다."""
         tts_proj_ins = self.proj_model.objects.get(project_title=project_title)
         bulk_list = []
+        seq = sequence
         self.serializer(data=data)
         # self.serializer.is_valid(raise_exception=True)
         amount = data.count()
         project_id = tts_proj_ins.id
 
         with transaction.atomic():
-            self.push_audio_data(project_id=project_id, amount=amount, seq=seq)
+            pushed = self.push_audio_data_sequence(
+                project_id=project_id, amount=amount, sequence=seq
+            )
+            self.tts.rename_tts_sequence(
+                addnum=amount, past_name_list=pushed, project_title=project_title
+            )
+
             for sentense in data:
-                seq = seq + 1
+
                 file = self.tts.create_tts(
                     project_title=project_title, text=sentense, slow=slow, sequence=seq
                 )
@@ -139,15 +146,17 @@ class AudioDataRepository(AbstarctAudioDataRepository):
                     tts_project=tts_proj_ins, sequence=seq, defaults=default
                 )
                 temp = self.serializer(created).data
+                seq = seq + 1
                 bulk_list.append(temp)
         res = dict(zip(range(1, len(bulk_list) + 1), bulk_list))
         return res
 
-    def push_audio_data(self, project_id: int, amount: int, seq: int) -> None:
-        q1 = Q("sequence" > seq)
+    def push_audio_data_sequence(self, project_id: int, amount: int, sequence: int) -> list(dict):
+        q1 = Q("sequence" >= sequence)
         q2 = Q("project_id" == project_id)
         q_query = q1.add(q2, Q.AND)
-        self.model.objects.filter(q_query).update(sequence=F("sequence") + amount)
+        pushed = self.model.objects.filter(q_query).update(sequence=F("sequence") + amount)
+        return self.serializer(pushed, many=True).data
 
     def update_audio_data(self, project_title: str, data: dict, sequence: int) -> dict:
         """project title, 내부 순서 sequence 를 인자로 받아서 프로젝트 내부 sequence번째 오디오 데이터를 업데이트 합니다."""

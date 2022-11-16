@@ -101,16 +101,18 @@ def project_delete(request):
     manual_parameters=[
         Parameter("account_id", IN_QUERY, "생성 아이디 입니다. 쿼리스트링입니다.", type="int"),
     ],
-    responses={200: AccountSerializer},
+    responses={200: AudioDataSerializer},
 )
 @api_view(["POST"])
 @execption_hanlder()
 @must_be_user()
 @parser_classes([JSONParser])
-def account_get(request):
+def insert_data(request):
     user_id = request.user["id"]
-    account_id = request.GET["account_id"]
-    res = account_book_service.get(account_id=account_id, user_id=user_id)
+    data = request.data
+    input = TtsProjectCreateSchema(data=data)
+    input.is_valid(raise_exception=True)
+    res = service.insert_audio_data(data=data)
     return JsonResponse(res, status=200)
 
 

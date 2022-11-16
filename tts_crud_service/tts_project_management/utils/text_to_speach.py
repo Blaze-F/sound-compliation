@@ -48,3 +48,26 @@ class GoogleTextToSpeach:
                 os.makedirs(f"{save_path}{project_title}")
         except OSError:
             raise print("Error: Creating directory. " + temp)
+
+    def rename_tts_sequence(self, addnum: int, past_name_list: list, project_title: str):
+        """_을 기준으로 파일명을 split 합니다. 프로젝트명, 등 다른 변수에 _가 들어갈경우 에러 가능성이 있습니다."""
+        # TODO 정규표현식 적용 알아보기
+        audio_config = config.audio_output
+        save_path = audio_config["path"]
+        make_folder = audio_config["make_folder"]
+
+        if make_folder == True:
+            project_path = f"{save_path}{project_title}"
+        else:
+            project_path = f"{save_path}"
+
+        for data in past_name_list:
+            splited = data["name"].split("_")
+            past_seq = int(splited[2])
+            new_seq = past_seq + addnum
+            new_name_seq = str(new_seq).zfill(3)
+            os.rename(
+                project_path
+                + data["name"]
+                + f"{project_path}GTTS_{splited[1]}_{new_name_seq}_{splited[3]}.mp3"
+            )

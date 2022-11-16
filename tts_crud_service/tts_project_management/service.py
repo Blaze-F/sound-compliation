@@ -33,19 +33,19 @@ class TtsProjectManagementService:
         res["project"] = project
         return res
 
-    def update_project(self, project_title: str, sequence: int, text: str):
-        pass
-
     def delete_project(self, project_title: str) -> str:
 
         res = self.tts_project_repo.delete(project_title=project_title)
 
-    def insert_audio_data(
-        self,
-    ):
-        pass
+    def insert_audio_data(self, project_title: str, data: list, sequence: int, slow=False) -> dict:
+        res = self.audio_data_repo(
+            project_title=project_title, data=data, sequence=sequence, slow=False
+        )
+        return res
 
     def delete_audio_data(
-        self,
+        self, project_title: str, sequence: int, delete_amount: int, user_id: int
     ):
-        pass
+        """해당 seq"""
+
+        return
