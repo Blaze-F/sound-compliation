@@ -1,6 +1,7 @@
 import json
 from typing import List
 from numpy import ceil
+
 from config.config import Config
 from tts_project_management.models import AudioData, TtsProject
 from tts_project_management.serializer import AudioDataSerializer, TtsProjectSerializer
@@ -73,31 +74,19 @@ class AbstarctAudioDataRepository:
 
 
 class AudioDataRepository(AbstarctAudioDataRepository):
-    def create(self, data: dict, tts_project_id: int, sequense: int) -> dict:
-
-        self.serializer(data=data)
-        self.serializer.is_valid(raise_exception=True)
-
-        file = GoogleTextToSpeach.create_tts(
-            text=data["text"], slow=data["slow"], sequense=sequense
-        )
-        created = self.model.objects.create(
-            text=data["text"],
-            slow=data["slow"],
-            name=file["name"],
-            tts_project=tts_project_id,
-            seq_in_proj=sequense,
-        )
-        return self.serializer(created).data
-
     def create_bulk(self, data: list, project_title: str, slow=False) -> dict():
         bulk_list = []
         self.serializer(data=data)
         # self.serializer.is_valid(raise_exception=True)
         seq = 0
         tts_proj_ins = self.proj_model.objects.get(project_title=project_title)
-        for sentense in data:
 
+        audio_config = Config.audio_output
+        make_folder = audio_config["make_folder"]
+
+        if make_folder == True:
+            self.tts.create_folder(project_title=project_title)
+        for sentense in data:
             file = self.tts.create_tts(
                 project_title=project_title, text=sentense, slow=slow, sequense=seq
             )
