@@ -17,17 +17,19 @@
     - [('id1' ,'text1'), ('id2', 'text2'), ('id3', 'text3'), ....]
     - 오디오는 input의 path에 저장됩니다.
     
-    /project/ (POST)
     
-    ## Request
-    ```json
+## /project/ (POST)
+
+## Request
+ ```json
     {
     "project_title": "새로운 대사들",
     "sentenses": "즉, 중첩 딕셔너리는 계층형 데이터를 저장할 때 유용합니다. 딕셔너리 안에 들어있는 딕셔너리에 접근하려면 딕셔너리 뒤에 [ ](대괄호)를 단계만큼 붙이고 키를 지정해주 면 됩니다. 여기서는 딕셔너리가 두 단계로 구성되어 있으므로 대괄호를 두 번 사용합니다.template_name template_name이 제공된 경우, HTML 렌더러 또는 일부 다른 사용자 지정 template렌더러가 response에 승인된 렌더러인 경우에만 필요합니다.accepted_rendererresponse를 렌더링하는 데 사용할 렌더러 인스턴스입니다.response가 view에서 반환되기 직전에 APIView 또는 @api_view에 의해 자동으로 설정됩니다. "}
-```
+   ```
+   
+## Response
     
-    ## Response
-    ```json
+ ```json
     {
     "1": {
         "id": 45,
