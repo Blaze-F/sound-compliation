@@ -15,8 +15,8 @@ class TtsProjectManagementService:
         audio_data_repo: AbstarctAudioDataRepository,
     ) -> None:
         # TODO self 변수로 받기
-        self.tts_project_repo = tts_project_repo
-        self.audio_data_repo = audio_data_repo
+        self.tts_project_repo = AudioDataRepository
+        self.audio_data_repo = TtsProjectRepository
         pass
 
     def get_page(self, projct_title: str, page=1) -> list():
@@ -38,3 +38,13 @@ class TtsProjectManagementService:
     def delete_project(self, project_title: str) -> str:
 
         res = self.tts_project_repo.delete(project_title=project_title)
+
+    def insert_audio_data(
+        self,
+    ):
+        pass
+
+    def delete_audio_data(
+        self,
+    ):
+        pass

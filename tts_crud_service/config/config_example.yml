@@ -1,7 +1,7 @@
 databases:
   host: "localhost"
   port: 3306
-  database: "rainy_day"
+  database: "tts_service"
   username: "db user name"
   password: "db pw"
   timezone: "+09:00"
@@ -10,7 +10,7 @@ secrets:
   django: "django secret"
 
 token:
-  scret: "jwt secret"
+  secret: "jwt secret"
   expire_sec: 3600
 
 pagenation:
@@ -20,4 +20,3 @@ audio_output:
   path: "audio_outputs/"
   #프로젝트 이름으로 된 폴더를 생성하여 음성 데이터를 저장합니다.
   make_folder: True
-
