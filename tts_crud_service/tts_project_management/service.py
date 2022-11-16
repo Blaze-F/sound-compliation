@@ -15,9 +15,8 @@ class TtsProjectManagementService:
         audio_data_repo: AbstarctAudioDataRepository,
     ) -> None:
         # TODO self 변수로 받기
-        self.tts_project_repo = AudioDataRepository
-        self.audio_data_repo = TtsProjectRepository
-        pass
+        self.tts_project_repo = tts_project_repo
+        self.audio_data_repo = audio_data_repo
 
     def get_page(self, projct_title: str, page=1) -> list():
         """리스트로 반환합니다. 기본 페이지 사이즈 값은 config에 상수로 두었습니다."""

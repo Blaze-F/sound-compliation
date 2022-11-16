@@ -17,6 +17,7 @@ pagenation:
   default_page_size: 10
 
 audio_output:
+  #/포함해주세요
   path: "audio_outputs/"
   #프로젝트 이름으로 된 폴더를 생성하여 음성 데이터를 저장합니다.
   make_folder: True

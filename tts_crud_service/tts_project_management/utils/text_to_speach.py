@@ -1,6 +1,7 @@
 from gtts import gTTS
 
 from config.config import config
+import os
 
 
 class GoogleTextToSpeach:
@@ -32,3 +33,16 @@ class GoogleTextToSpeach:
         }
 
         return data
+
+    def create_folder(project_title: str):
+
+        audio_config = config.audio_output
+        save_path = audio_config["path"]
+
+        temp = f"{save_path}{project_title}"
+
+        try:
+            if not os.path.exists(f"{save_path}{project_title}"):
+                os.makedirs(f"{save_path}{project_title}")
+        except OSError:
+            raise print("Error: Creating directory. " + temp)
