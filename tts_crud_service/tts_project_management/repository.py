@@ -9,6 +9,7 @@ from exceptions import NotFoundError
 from tts_project_management.utils.text_to_speach import GoogleTextToSpeach
 from user.models import User
 from django.db import transaction
+from django.db.models import Q, F
 
 
 class AbstarctProjectRepository:
@@ -118,8 +119,10 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         self.serializer(data=data)
         # self.serializer.is_valid(raise_exception=True)
         amount = data.count()
+        project_id = tts_proj_ins.id
 
         with transaction.atomic():
+            self.push_audio_data(project_id=project_id, amount=amount, seq=seq)
             for sentense in data:
                 seq = seq + 1
                 file = self.tts.create_tts(
@@ -140,10 +143,11 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         res = dict(zip(range(1, len(bulk_list) + 1), bulk_list))
         return res
 
-    def push_audio_data(self, project_ins, amount, seq):
-        tart = datetime.now()
-        AudioData.objects.filter(sequence > seq).update(author="known author")
-        end = datetime.now()
+    def push_audio_data(self, project_id: int, amount: int, seq: int) -> None:
+        q1 = Q("sequence" > seq)
+        q2 = Q("project_id" == project_id)
+        q_query = q1.add(q2, Q.AND)
+        self.model.objects.filter(q_query).update(sequence=F("sequence") + amount)
 
     def update_audio_data(self, project_title: str, data: dict, sequence: int) -> dict:
         """project title, 내부 순서 sequence 를 인자로 받아서 프로젝트 내부 sequence번째 오디오 데이터를 업데이트 합니다."""

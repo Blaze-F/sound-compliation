@@ -83,10 +83,7 @@ def find_project_page(request):
 
 
 @swagger_auto_schema(
-    manual_parameters=[
-        Parameter("account_id", IN_QUERY, "생성 아이디 입니다.", type="int"),
-        # Parameter('share_id', IN_PATH, type='uuid')
-    ],
+    manual_parameters=[Parameter("account_id", IN_QUERY, "생성 아이디 입니다.", type="int")],
     responses={200: dict},
 )
 @execption_hanlder()
@@ -99,21 +96,23 @@ def project_delete(request):
     return JsonResponse(res, status=200)
 
 
-# @swagger_auto_schema(method="get",manual_parameters=[
-#             Parameter('account_id', IN_QUERY,
-#                       '생성 아이디 입니다. 쿼리스트링입니다.',
-#                       type='int'),
-#         ], responses={200: AccountSerializer})
-# @api_view(["GET"])
-# @execption_hanlder()
-# @must_be_user()
-# @parser_classes([JSONParser])
-# def account_get(request):
-#     user_id = request.user["id"]
-#     account_id = request.GET["account_id"]
-#     res = account_book_service.get(account_id=account_id, user_id=user_id)
+@swagger_auto_schema(
+    method="post",
+    manual_parameters=[
+        Parameter("account_id", IN_QUERY, "생성 아이디 입니다. 쿼리스트링입니다.", type="int"),
+    ],
+    responses={200: AccountSerializer},
+)
+@api_view(["POST"])
+@execption_hanlder()
+@must_be_user()
+@parser_classes([JSONParser])
+def account_get(request):
+    user_id = request.user["id"]
+    account_id = request.GET["account_id"]
+    res = account_book_service.get(account_id=account_id, user_id=user_id)
+    return JsonResponse(res, status=200)
 
-#     return JsonResponse(res, status=200)
 
 # @swagger_auto_schema(method="get",manual_parameters=[
 #             Parameter('account_id', IN_QUERY,

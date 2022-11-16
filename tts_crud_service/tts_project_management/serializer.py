@@ -27,3 +27,8 @@ class TtsProjectSerializerData(serializers.ModelSerializer):
 class TtsProjectCreateSchema(serializers.Serializer):
     project_title = serializers.CharField()
     sentenses = serializers.CharField()
+
+
+class TtsProjectReqSchema(serializers.Serializer):
+    project_title = serializers.CharField()
+    sentenses = serializers.CharField()
