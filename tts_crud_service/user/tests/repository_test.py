@@ -16,7 +16,6 @@ def test_create_user():
         **{
             "name": "test",
             "email": "test@test.com",
-            "district": "강남구",
             "password": "test_pwd",
         }
     )

@@ -6,6 +6,7 @@ from decorator.auth_handler import must_be_user
 from decorator.execption_handler import execption_hanlder
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.openapi import Parameter, IN_QUERY
+from decorator.owner_check import owner_check
 
 from tts_project_management.repository import (
     AudioDataRepository,
@@ -18,7 +19,7 @@ from tts_project_management.serializer import (
     TtsProjectCreateSchema,
 )
 from tts_project_management.service import AudioDataManagementService, TtsProjectManagementService
-from tts_project_management.utils.preprocess import preprocess_data
+from tts_project_management.utils.preprocess import Preprocessor
 
 # 인스턴스 생성
 tts_project_repository = TtsProjectRepository()
@@ -29,6 +30,7 @@ service = TtsProjectManagementService(
 audio_service = AudioDataManagementService(
     tts_project_repo=tts_project_repository, audio_data_repo=audio_data_repository
 )
+preprocessor = Preprocessor()
 
 
 class ProjectView(APIView):
@@ -56,7 +58,7 @@ def project_create(request):
     input.is_valid(raise_exception=True)
     project_title = data["project_title"]
     # 전처리기 호출
-    sentenses = preprocess_data(input=data["sentenses"])
+    sentenses = preprocessor.preprocess_data(input=data["sentenses"])
 
     created = service.create_project(
         user_id=user_id, project_title=project_title, project_container=sentenses
@@ -67,7 +69,7 @@ def project_create(request):
 
 @swagger_auto_schema(responses={200: AudioDataSerializer})
 # @execption_hanlder()
-@must_be_user()
+@owner_check()
 @parser_classes([JSONParser])
 def find_project_page(request):
     user_id = request.user["id"]
@@ -82,7 +84,7 @@ def find_project_page(request):
     responses={200: dict},
 )
 @execption_hanlder()
-@must_be_user()
+@owner_check()
 @parser_classes([JSONParser])
 def project_delete(request):
     user_id = request.user["id"]
@@ -96,7 +98,7 @@ def project_delete(request):
 )
 @api_view(["POST"])
 # @execption_hanlder()
-@must_be_user()
+@owner_check()
 @parser_classes([JSONParser])
 def insert_data(request):
     user_id = request.user["id"]
@@ -104,7 +106,7 @@ def insert_data(request):
     input = AudioDataInsertReqSchema(data=data)
     input.is_valid(raise_exception=True)
     # 전처리기 호출
-    sentenses = preprocess_data(input=data["sentenses"])
+    sentenses = preprocessor.preprocess_data(input=data["sentenses"])
     project_title = data["project_title"]
     sequence = data["sequence"]
 
@@ -119,7 +121,7 @@ def insert_data(request):
 )
 @api_view(["PUT"])
 @execption_hanlder()
-@must_be_user()
+@owner_check()
 @parser_classes([JSONParser])
 def audio_data_update(request):
     user_id = request.user["id"]
@@ -140,7 +142,7 @@ def audio_data_update(request):
 )
 @api_view(["DELETE"])
 @execption_hanlder()
-@must_be_user()
+@owner_check()
 @parser_classes([JSONParser])
 def delete_audio_data(request):
     user_id = request.user["id"]

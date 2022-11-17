@@ -21,6 +21,9 @@ class TtsProjectManagementService:
         context, serialized = self.tts_project_repo.get_page(project_id=projct_id, page=page)
         return context, serialized
 
+    def get_project_info_by_title(self, project_title: str):
+        return self.tts_project_repo.get_by_title(project_title=project_title)
+
     def create_project(self, project_title: str, project_container: list, user_id: int) -> dict:
 
         project = self.tts_project_repo.create(project_title=project_title, user_id=user_id)

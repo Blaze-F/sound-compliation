@@ -86,6 +86,9 @@ DATABASES = {
         "PASSWORD": config.databases["password"],
         "HOST": config.databases["host"],
         "PORT": config.databases["port"],
+        "TEST": {
+            "NAME": "test_tts",
+        },
     }
 }
 
