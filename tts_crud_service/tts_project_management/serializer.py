@@ -24,6 +24,26 @@ class TtsProjectSerializerData(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AudioDataListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AudioData
+        fields = ["text", "sequence", "path"]
+
+
+class TtsPrpjectPageSerializer(serializers.ModelSerializer):
+    audio_data_set = AudioDataListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TtsProject
+        fields = "__all__"
+
+
 class TtsProjectCreateSchema(serializers.Serializer):
     project_title = serializers.CharField()
     sentenses = serializers.CharField()
+
+
+class AudioDataInsertReqSchema(serializers.Serializer):
+    project_title = serializers.CharField()
+    sentenses = serializers.CharField()
+    sequence = serializers.IntegerField()
