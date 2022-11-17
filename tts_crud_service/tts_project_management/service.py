@@ -34,7 +34,8 @@ class TtsProjectManagementService:
         return res
 
     def delete_project(self, project_title: str) -> str:
-        res = self.tts_project_repo.delete(project_title=project_title)
+        self.tts_project_repo.delete(project_title=project_title)
+        return "delete complete"
 
 
 class AudioDataManagementService:
@@ -61,9 +62,7 @@ class AudioDataManagementService:
         )
         return res
 
-    def delete_audio_data(
-        self, project_title: str, sequence: int, delete_amount: int, user_id: int
-    ) -> str:
+    def delete_audio_data(self, project_title: str, sequence: int) -> str:
         """해당 seq에 해당하는 audio 데이터를 삭제합니다."""
         self.audio_data_repo.delete_audio_data_sequence(
             project_title=project_title, sequence=sequence

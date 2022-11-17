@@ -195,7 +195,7 @@ class AudioDataRepository(AbstarctAudioDataRepository):
     def delete_audio_data_sequence(self, project_title: str, sequence: int) -> None:
         tts_proj_ins = self.proj_model.objects.get(project_title=project_title)
         try:
-            self.model.objects.get(tts_proj_ins=tts_proj_ins, sequence=sequence).delete
+            self.model.objects.filter(tts_project=tts_proj_ins, sequence=sequence).delete
         except self.model.DoesNotExist:
             raise NotFoundError
 
