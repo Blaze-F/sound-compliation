@@ -66,16 +66,16 @@ def project_create(request):
 
 
 @swagger_auto_schema(responses={200: AudioDataSerializer})
-@execption_hanlder()
+# @execption_hanlder()
 @must_be_user()
 @parser_classes([JSONParser])
 def find_project_page(request):
     user_id = request.user["id"]
-    project_title = request.GET["project_title"]
-    pagenum = request.get["page"]
-    data_list = service.get_page(projct_title=project_title, page=pagenum)
+    project_id = request.GET["project_id"]
+    pagenum = request.GET.get("page", 1)
+    context, serialized = service.get_page(projct_id=project_id, page=pagenum)
 
-    return JsonResponse(data_list, status=200)
+    return JsonResponse({"page_info": context, "data": serialized}, status=200)
 
 
 @swagger_auto_schema(

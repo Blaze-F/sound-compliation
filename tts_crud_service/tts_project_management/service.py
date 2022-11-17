@@ -16,11 +16,10 @@ class TtsProjectManagementService:
         self.tts_project_repo = tts_project_repo
         self.audio_data_repo = audio_data_repo
 
-    def get_page(self, projct_title: str, page=1) -> list():
+    def get_page(self, projct_id: int, page=1) -> tuple():
         """리스트로 반환합니다. 기본 페이지 사이즈 값은 config에 상수로 두었습니다."""
-        res = self.tts_project_repo.get_page(project_title=projct_title, page=page)
-
-        return res
+        context, serialized = self.tts_project_repo.get_page(project_id=projct_id, page=page)
+        return context, serialized
 
     def create_project(self, project_title: str, project_container: list, user_id: int) -> dict:
 

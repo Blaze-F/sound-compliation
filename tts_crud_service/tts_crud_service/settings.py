@@ -71,6 +71,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = "tts_crud_service.wsgi.application"
 
 

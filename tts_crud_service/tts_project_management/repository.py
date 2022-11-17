@@ -41,21 +41,23 @@ class TtsProjectRepository(AbstarctProjectRepository):
         except self.model.DoesNotExist:
             raise NotFoundError
 
-    def get_page(self, project_title: str, page: int) -> list():
+    def get_page(self, project_id: int, page: int) -> tuple():
         """리스트로 반환합니다. 기본 페이지 값은 config에 상수로 두었습니다."""
         page_size = Config.pagenation["page_size"]
-        limit = page_size * int(page)
-        offset = limit - page_size
+        page_limit = page_size * int(page)
+        offset = page_limit - page_size
         try:
-            proj = self.model.objects.get(project_title=project_title)
-            data = self.serializer(proj)
-            cnt = data["audio_data_count"]
-            page_audio_data = data.audio_data_set
+            proj = self.model.objects.prefetch_related("audiodata_set").get(id=project_id)
+            data_cnt = proj.audiodata_set.count()
+            pagination = proj.audiodata_set.all().order_by("sequence")[offset:page_limit]
+            serialized = self.audio_data_serializer(instance=pagination, many=True).data
+            page_count = ceil(data_cnt / page_size)
+
             # page_audio_data = obj.text_set.all().order_by("index")[offset:limit]
 
-            page_count = ceil(cnt / page_size)
+            page_count = ceil(data_cnt / page_size)
             context = [{"page": page, "page_count": page_count}]
-            return data, context
+            return context, serialized
         except self.model.DoesNotExist:
             raise NotFoundError
 
@@ -148,6 +150,7 @@ class AudioDataRepository(AbstarctAudioDataRepository):
                 temp = self.serializer(created).data
                 seq = seq + 1
                 bulk_list.append(temp)
+
         res = dict(zip(range(1, len(bulk_list) + 1), bulk_list))
         return res
 
@@ -181,10 +184,12 @@ class AudioDataRepository(AbstarctAudioDataRepository):
         q2 = Q(tts_project_id__exact=project_id)
         q_query = q1.add(q2, Q.AND)
         self.model.objects.filter(q_query).update(sequence=F("sequence") + amount)
+
         sequence += amount
         q1 = Q(sequence__gte=sequence)
         q_query = q1.add(q2, Q.AND)
         pushed = self.model.objects.filter(q_query)
+
         return self.serializer(pushed, many=True).data
 
     def delete_audio_data_sequence(self, project_title: str, sequence: int) -> None:
