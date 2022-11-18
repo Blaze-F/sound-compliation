@@ -50,6 +50,7 @@
 
 
 #### 📰 모델링
+![tts_project](https://user-images.githubusercontent.com/101803254/202617042-abbb6490-8c94-4366-a8b8-82bbd0b2f791.png)
 
 </br>
 
