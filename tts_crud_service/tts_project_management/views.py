@@ -48,7 +48,7 @@ class ProjectView(APIView):
 
 
 @swagger_auto_schema(responses={200: dict}, request_body=json)
-# @execption_hanlder()
+@execption_hanlder()
 @must_be_user()
 @parser_classes([JSONParser])
 def project_create(request):
@@ -68,8 +68,8 @@ def project_create(request):
 
 
 @swagger_auto_schema(responses={200: AudioDataSerializer})
-# @execption_hanlder()
-@owner_check()
+@execption_hanlder()
+@must_be_user()
 @parser_classes([JSONParser])
 def find_project_page(request):
     user_id = request.user["id"]
@@ -97,7 +97,7 @@ def project_delete(request):
     method="post", responses={200: AudioDataSerializer}, request_body=AudioDataInsertReqSchema
 )
 @api_view(["POST"])
-# @execption_hanlder()
+@execption_hanlder()
 @owner_check()
 @parser_classes([JSONParser])
 def insert_data(request):

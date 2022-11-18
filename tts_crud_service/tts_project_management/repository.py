@@ -22,7 +22,6 @@ class AbstarctProjectRepository:
 
 
 class TtsProjectRepository(AbstarctProjectRepository):
-    # TODO 업데이트, create 나누기
     def create(self, project_title: str, user_id: int) -> dict:
         user_ins = self.user.objects.get(id=user_id)
         default = {"user": user_ins}

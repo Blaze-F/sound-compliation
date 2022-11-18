@@ -1,8 +1,15 @@
 from functools import wraps
+from tts_project_management.repository import AudioDataRepository, TtsProjectRepository
 from tts_project_management.service import TtsProjectManagementService
 from user.provider.auth_provider import auth_provider
 from exceptions import NotAuthorizedError
 from rest_framework.views import APIView
+
+tts_project_repository = TtsProjectRepository()
+audio_data_repository = AudioDataRepository()
+service = TtsProjectManagementService(
+    tts_project_repo=tts_project_repository, audio_data_repo=audio_data_repository
+)
 
 
 def owner_check():
@@ -15,11 +22,10 @@ def owner_check():
                 raise NotAuthorizedError
             user = auth_provider.check_auth(auth_token)
             request.user = user
-            project = TtsProjectManagementService.get_project_info_by_title(
-                request.data["project_title"]
-            )
+            anything = request.data["project_title"]
+            project = service.get_project_info_by_title(project_title=anything)
 
-            if request.user[id] != project["user_id"]:
+            if request.user["id"] != project["user"]:
                 raise NotAuthorizedError
             return api_func(request, *args, **kwargs)
 

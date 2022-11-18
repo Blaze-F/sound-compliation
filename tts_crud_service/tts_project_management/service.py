@@ -12,7 +12,6 @@ class TtsProjectManagementService:
         tts_project_repo: AbstarctProjectRepository,
         audio_data_repo: AbstarctAudioDataRepository,
     ) -> None:
-        # TODO self 변수로 받기
         self.tts_project_repo = tts_project_repo
         self.audio_data_repo = audio_data_repo
 
@@ -44,7 +43,6 @@ class AudioDataManagementService:
         tts_project_repo: AbstarctProjectRepository,
         audio_data_repo: AbstarctAudioDataRepository,
     ) -> None:
-        # TODO self 변수로 받기
         self.tts_project_repo = tts_project_repo
         self.audio_data_repo = audio_data_repo
 
