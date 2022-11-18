@@ -134,7 +134,7 @@ URL|Method|Description|
 |"project/push"|PUT|문장단위 삽입 (Owner Check: 소유자를 검사합니다.)| 
 |"/project/audio/delete"|DELETE| 오디오 데이터 삭제 (Owner Check: 소유자를 검사합니다.)| 
 
-##API Req, Res 예제, 상세설명
+## 상세 설명
 
 ## /signup/ (POST)
 ### Request
