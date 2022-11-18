@@ -88,9 +88,9 @@ def find_project_page(request):
 @parser_classes([JSONParser])
 def project_delete(request):
     user_id = request.user["id"]
-    project_title = request.GET["project_title"]
+    project_title = request.data["project_title"]
     res = service.delete_project(project_title=project_title)
-    return JsonResponse(res, status=200)
+    return JsonResponse(res, status=200, safe=False)
 
 
 @swagger_auto_schema(
@@ -150,7 +150,5 @@ def delete_audio_data(request):
     project_title = data["project_title"]
     sequence = data["sequence"]
 
-    res = audio_service.delete_audio_data(
-        project_title=project_title, sequence=sequence, slow=False
-    )
-    return JsonResponse(res, status=200)
+    res = audio_service.delete_audio_data(project_title=project_title, sequence=sequence)
+    return JsonResponse(res, status=200, safe=False)
